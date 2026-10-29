@@ -1,22 +1,55 @@
-# Prática de Oralidade em Inglês
+# PronouncePal
 
-Sistema web em que alunos da educação básica praticam a leitura em voz alta de pequenas histórias em inglês cadastradas pelos professores, recebendo feedback de pronúncia gerado por IA.
+Sistema web para alunos da educação básica praticarem a oralidade em inglês. O professor cadastra pequenas histórias, o aluno ouve a leitura, grava a própria voz lendo as frases e recebe um feedback de pronúncia gerado por IA.
 
-> Trabalho final da disciplina de Desenvolvimento Web (UTFPR).
+Trabalho final da disciplina de Desenvolvimento Web (UTFPR).
 
-## Estrutura
+## O problema
+
+As aulas de inglês têm pouco tempo para a prática da fala. Com turmas grandes e poucos recursos, é difícil cada aluno ler em voz alta e receber uma correção individual. O PronouncePal oferece essa prática fora da sala de aula, com correção imediata.
+
+## Funcionalidades
+
+**Aluno**
+- Ver as histórias disponíveis, com busca por título e filtro por nível
+- Ouvir a leitura da história e de cada frase
+- Gravar a leitura de uma frase e enviar para correção
+- Ver a nota, as palavras pronunciadas de forma incorreta e uma dica
+
+**Professor**
+- Cadastrar uma história, que é dividida em frases automaticamente
+- Escolher quais frases os alunos vão praticar
+- Acompanhar o desempenho dos alunos (notas e palavras com mais erro)
+
+## Uso de IA
+
+A gravação do aluno é enviada para a API, que usa o serviço de avaliação de pronúncia do **Azure Speech** para comparar o áudio com o texto da frase. O serviço devolve uma nota geral e uma nota por palavra, e o sistema mostra ao aluno onde ele errou. O áudio não é armazenado: ele é usado só na correção e depois descartado.
+
+## Tecnologias
+
+| Parte | Tecnologias |
+|---|---|
+| Frontend | Next.js, TypeScript, Tailwind CSS |
+| Backend | Python, FastAPI |
+| Banco de dados | SQLModel (SQLite local, PostgreSQL em produção) |
+| Autenticação | JWT |
+| IA | Azure Speech (Pronunciation Assessment) |
+
+## Estrutura do repositório
 
 ```
-frontend/   Next.js + Tailwind CSS
-backend/    FastAPI + SQLModel
+frontend/   site em Next.js
+backend/    API em FastAPI
 ```
 
-## Pré-requisitos
+## Como rodar
+
+### Pré-requisitos
 
 - Node.js 20 ou superior
 - Python 3.12 ou superior
 
-## Backend
+### Backend
 
 ```bash
 cd backend
@@ -30,7 +63,7 @@ fastapi dev app/main.py
 
 A API fica em http://localhost:8000 e a documentação em http://localhost:8000/docs.
 
-## Frontend
+### Frontend
 
 ```bash
 cd frontend
@@ -45,9 +78,3 @@ Para gerar a versão estática (pasta `frontend/out/`):
 ```bash
 npm run build
 ```
-
-## Variáveis de ambiente
-
-| Onde | Variável | Descrição |
-|---|---|---|
-| backend | `CORS_ORIGINS` | Origens liberadas, separadas por vírgula |
