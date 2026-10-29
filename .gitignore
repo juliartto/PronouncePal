@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Variáveis de ambiente (nunca subir chaves)
+.env
+!.env.example
+
+# Banco local
+*.db
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
