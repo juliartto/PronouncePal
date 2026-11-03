@@ -1,6 +1,5 @@
 import type { Usuario } from "@/types";
 
-// Senha de todos os usuários de teste: 1234
 export const usuariosMock: Usuario[] = [
   { id: 1, nome: "Ana", usuario: "ana", papel: "aluno" },
   { id: 2, nome: "Pedro", usuario: "pedro", papel: "aluno" },

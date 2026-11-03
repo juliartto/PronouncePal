@@ -3,7 +3,6 @@ import type { Usuario } from "@/types";
 
 const esperar = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Na Sprint 3 isto vira um POST /auth/login que devolve o token JWT
 export async function login(usuario: string, senha: string): Promise<Usuario> {
   await esperar(600);
 

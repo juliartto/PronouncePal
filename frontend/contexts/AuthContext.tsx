@@ -6,7 +6,7 @@ import type { Usuario } from "@/types";
 
 const CHAVE = "pronouncepal:usuario";
 
-// A sessão fica no localStorage. Estas funções deixam o React "assinar" as mudanças.
+// Avisa o React quando a sessão salva no localStorage muda
 const ouvintes = new Set<() => void>();
 
 function assinar(ouvinte: () => void) {
@@ -23,14 +23,14 @@ function salvarSessao(valor: string | null) {
 interface AuthContextValor {
   usuario: Usuario | null;
   carregando: boolean;
-  entrar: (usuario: string, senha: string) => Promise<Usuario>;
+  entrar: (usuario: string, senha: string) => Promise<void>;
   sair: () => void;
 }
 
 const AuthContext = createContext<AuthContextValor | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // No build estático não existe localStorage, então o valor é undefined (carregando)
+  // No build não existe localStorage, então undefined significa "carregando"
   const salvo = useSyncExternalStore(
     assinar,
     () => localStorage.getItem(CHAVE),
@@ -42,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function entrar(nomeUsuario: string, senha: string) {
     const logado = await authService.login(nomeUsuario, senha);
     salvarSessao(JSON.stringify(logado));
-    return logado;
   }
 
   function sair() {

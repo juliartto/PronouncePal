@@ -15,7 +15,6 @@ export default function PaginaLogin() {
   const { usuario } = useAuth();
   const router = useRouter();
 
-  // Quem já está logado vai direto para o início
   useEffect(() => {
     if (usuario) router.replace("/inicio");
   }, [usuario, router]);

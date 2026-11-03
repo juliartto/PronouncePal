@@ -2,7 +2,6 @@ interface LogoProps {
   claro?: boolean;
 }
 
-// Livro aberto com um balão de fala
 export default function Logo({ claro = false }: LogoProps) {
   return (
     <span className={`flex items-center gap-2 font-giz text-2xl ${claro ? "text-giz" : "text-lousa"}`}>

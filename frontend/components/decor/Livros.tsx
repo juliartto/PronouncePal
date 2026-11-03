@@ -1,4 +1,3 @@
-// Pilha de livros com uma maçã em cima
 export default function Livros({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 120 110" className={className} aria-hidden="true">
