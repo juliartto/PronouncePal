@@ -10,7 +10,7 @@ export default function Cabecalho() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const estiloLink = "rounded px-3 py-1 transition hover:bg-lousa-clara";
+  const estiloLink = "rounded px-3 py-1 transition hover:bg-white/10";
   const estiloAtivo = "underline decoration-lapis decoration-2 underline-offset-4";
 
   function handleSair() {
@@ -19,7 +19,7 @@ export default function Cabecalho() {
   }
 
   return (
-    <header className="border-b-[8px] border-madeira bg-lousa textura-lousa text-giz shadow-md">
+    <header className="border-b-[8px] border-madeira bg-lousa text-giz shadow-md">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4">
         <div>
           <Logo claro />

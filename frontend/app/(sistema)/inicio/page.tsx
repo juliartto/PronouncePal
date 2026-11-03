@@ -20,9 +20,9 @@ export default function PaginaInicio() {
 
   return (
     <>
-      <div className="relative">
+      <div className="relative mt-6">
         <TituloPagina titulo="Histórias disponíveis" subtitulo="Escolha uma história para ouvir e praticar" />
-        <Livros className="absolute -top-6 right-4 hidden w-28 sm:block" />
+        <Livros className="absolute -top-12 right-6 hidden w-24 sm:block" />
       </div>
 
       <FiltroHistorias busca={busca} nivel={nivel} onBuscaChange={setBusca} onNivelChange={setNivel} />

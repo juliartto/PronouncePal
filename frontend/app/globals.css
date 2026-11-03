@@ -2,49 +2,31 @@
 
 @theme {
   --color-lousa: #2f4a3c;
-  --color-lousa-clara: #3d5e4c;
   --color-giz: #f4f1e6;
   --color-madeira: #9a6a3f;
-  --color-madeira-escura: #6f4a29;
   --color-papel: #fffdf6;
+  --color-fundo: #fbf8ef;
   --color-linha: #cfe0f0;
-  --color-margem: #f2a9a9;
   --color-lapis: #f6c344;
   --color-maca: #c0392b;
-  --color-caneta: #2563b8;
   --color-tinta: #2b2b2b;
   --color-texto-suave: #5f5a52;
   --color-sucesso: #2e7d32;
   --color-aviso: #9a6700;
-  --color-fundo: #fbf8ef;
 
   --font-sans: var(--font-nunito);
   --font-giz: var(--font-patrick);
 }
 
-/* Fundo de folha quadriculada */
 body {
   background-color: var(--color-fundo);
-  background-image:
-    linear-gradient(#e6eef6 1px, transparent 1px),
-    linear-gradient(90deg, #e6eef6 1px, transparent 1px);
-  background-size: 28px 28px;
   color: var(--color-tinta);
 }
 
-/* Folha de caderno pautada com margem vermelha */
+/* Folha pautada: uma linha a cada 2rem */
 .folha-caderno {
   background-color: var(--color-papel);
-  background-image:
-    linear-gradient(90deg, transparent 2.75rem, var(--color-margem) 2.75rem, var(--color-margem) calc(2.75rem + 2px), transparent calc(2.75rem + 2px)),
-    linear-gradient(transparent calc(2rem - 1px), var(--color-linha) calc(2rem - 1px));
-  background-size: 100% 100%, 100% 2rem;
+  background-image: linear-gradient(transparent calc(2rem - 1px), var(--color-linha) calc(2rem - 1px));
+  background-size: 100% 2rem;
   line-height: 2rem;
-}
-
-/* Textura de pó de giz na lousa */
-.textura-lousa {
-  background-image:
-    radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.06), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgb(255 255 255 / 0.05), transparent 45%);
 }
