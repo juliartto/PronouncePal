@@ -5,6 +5,7 @@ import Livros from "@/components/decor/Livros";
 import CartaoHistoria from "@/components/historias/CartaoHistoria";
 import FiltroHistorias from "@/components/historias/FiltroHistorias";
 import TituloPagina from "@/components/layout/TituloPagina";
+import EstadoVazio from "@/components/ui/EstadoVazio";
 import { useHistorias } from "@/contexts/HistoriasContext";
 import type { Nivel } from "@/types";
 
@@ -27,7 +28,7 @@ export default function PaginaInicio() {
       <FiltroHistorias busca={busca} nivel={nivel} onBuscaChange={setBusca} onNivelChange={setNivel} />
 
       {filtradas.length === 0 ? (
-        <p className="rounded-lg bg-papel p-6 text-center text-gray-600">Nenhuma história encontrada com esse filtro.</p>
+        <EstadoVazio>Nenhuma história encontrada com esse filtro.</EstadoVazio>
       ) : (
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtradas.map((historia) => (

@@ -17,7 +17,7 @@ export default function CartaoHistoria({ historia }: { historia: Historia }) {
         <div>
           <EtiquetaNivel nivel={historia.nivel} />
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-texto-suave">
           {frasesParaPraticar} frases para praticar · {historia.autor}
         </p>
       </div>

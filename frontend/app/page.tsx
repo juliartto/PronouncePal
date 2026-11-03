@@ -30,18 +30,18 @@ export default function PaginaLogin() {
         {/* Argolas de caderno */}
         <div className="absolute -top-3 left-6 right-6 flex justify-between" aria-hidden="true">
           {argolas.map((i) => (
-            <span key={i} className="h-6 w-3 rounded-full border-2 border-gray-400 bg-[#fbf8ef]" />
+            <span key={i} className="h-6 w-3 rounded-full border-2 border-texto-suave/50 bg-fundo" />
           ))}
         </div>
 
         <div className="mb-6 flex flex-col items-center gap-1">
           <Logo />
-          <p className="text-center text-sm text-gray-600">Pratique a leitura em inglês</p>
+          <p className="text-center text-sm text-texto-suave">Pratique a leitura em inglês</p>
         </div>
 
         <FormularioLogin />
 
-        <p className="mt-6 text-center text-xs text-gray-500">
+        <p className="mt-6 text-center text-xs text-texto-suave">
           Teste: <b>ana</b> (aluna) ou <b>carla</b> (professora), senha <b>1234</b>
         </p>
       </div>
