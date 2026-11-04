@@ -1,17 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import EtiquetaNivel from "@/components/historias/EtiquetaNivel";
+import PainelPratica from "@/components/historias/PainelPratica";
 import Botao from "@/components/ui/Botao";
 import { IconeAltoFalante, IconeMicrofone, IconeVoltar } from "@/components/ui/Icones";
 import { useHistorias } from "@/contexts/HistoriasContext";
 
 export default function ConteudoHistoria() {
   const id = Number(useSearchParams().get("id"));
-  const { historias } = useHistorias();
+  const { buscarPorId } = useHistorias();
+  const [lendo, setLendo] = useState(false);
+  const [praticando, setPraticando] = useState(false);
 
-  const historia = historias.find((h) => h.id === id);
+  const historia = buscarPorId(id);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   if (!historia) {
     return (
@@ -25,6 +37,25 @@ export default function ConteudoHistoria() {
   }
 
   const textoCompleto = historia.frases.map((f) => f.texto).join(" ");
+
+  function alternarLeitura() {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    if (lendo) {
+      window.speechSynthesis.cancel();
+      setLendo(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const fala = new SpeechSynthesisUtterance(textoCompleto);
+    fala.lang = "en-US";
+    fala.rate = 0.9;
+    fala.onend = () => setLendo(false);
+    fala.onerror = () => setLendo(false);
+    setLendo(true);
+    window.speechSynthesis.speak(fala);
+  }
 
   return (
     <>
@@ -43,14 +74,21 @@ export default function ConteudoHistoria() {
         <p className="text-xl leading-8">{textoCompleto}</p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Botao variante="secundario">
-            <IconeAltoFalante /> Ouvir leitura
+          <Botao type="button" variante="secundario" onClick={alternarLeitura}>
+            <IconeAltoFalante /> {lendo ? "Parar leitura" : "Ouvir leitura"}
           </Botao>
-          <Botao variante="destaque">
-            <IconeMicrofone /> Praticar
+          <Botao
+            type="button"
+            variante="destaque"
+            aria-expanded={praticando}
+            onClick={() => setPraticando((atual) => !atual)}
+          >
+            <IconeMicrofone /> {praticando ? "Fechar prática" : "Praticar"}
           </Botao>
         </div>
       </article>
+
+      {praticando && <PainelPratica key={historia.id} historia={historia} />}
     </>
   );
 }
