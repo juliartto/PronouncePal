@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Regua from "@/components/decor/Regua";
 import TituloPagina from "@/components/layout/TituloPagina";
 import FormularioNovaHistoria from "@/components/professor/FormularioNovaHistoria";
-import EstadoVazio from "@/components/ui/EstadoVazio";
+import PainelDesempenho from "@/components/professor/PainelDesempenho";
 import { useAuth } from "@/contexts/AuthContext";
 
 type AbaProfessor = "nova-historia" | "desempenho";
@@ -65,11 +65,7 @@ export default function PaginaProfessor() {
         </button>
       </div>
 
-      {abaAtiva === "nova-historia" ? (
-        <FormularioNovaHistoria />
-      ) : (
-        <EstadoVazio>Painel de desempenho dos alunos em carregamento.</EstadoVazio>
-      )}
+      {abaAtiva === "nova-historia" ? <FormularioNovaHistoria /> : <PainelDesempenho />}
     </>
   );
 }
