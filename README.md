@@ -4,6 +4,8 @@ Sistema web para alunos da educação básica praticarem a oralidade em inglês.
 
 Trabalho final da disciplina de Desenvolvimento Web (UTFPR).
 
+**Site:** https://pronounce-pal.vercel.app
+
 ## O problema
 
 As aulas de inglês têm pouco tempo para a prática da fala. Com turmas grandes e poucos recursos, é difícil cada aluno ler em voz alta e receber uma correção individual. O PronouncePal oferece essa prática fora da sala de aula, com correção imediata.
