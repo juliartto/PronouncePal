@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     # Origens liberadas no CORS, separadas por vírgula
     cors_origins: str = "http://localhost:3000"
 
+    azure_speech_key: str = ""
+    azure_speech_region: str = "eastus"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
