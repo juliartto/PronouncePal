@@ -6,6 +6,8 @@ Trabalho final da disciplina de Desenvolvimento Web (UTFPR).
 
 **Site:** https://pronounce-pal.vercel.app
 
+**API:** https://pronouncepal.onrender.com/docs (no plano gratuito a primeira requisição pode levar cerca de 1 minuto)
+
 ## O problema
 
 As aulas de inglês têm pouco tempo para a prática da fala. Com turmas grandes e poucos recursos, é difícil cada aluno ler em voz alta e receber uma correção individual. O PronouncePal oferece essa prática fora da sala de aula, com correção imediata.
@@ -64,6 +66,36 @@ fastapi dev app/main.py
 ```
 
 A API fica em http://localhost:8000 e a documentação em http://localhost:8000/docs.
+
+Variáveis do `backend/.env`:
+
+| Variável | Descrição |
+|---|---|
+| `CORS_ORIGINS` | Endereços do frontend que podem acessar a API, separados por vírgula |
+| `AZURE_SPEECH_KEY` | Chave do recurso Speech do Azure |
+| `AZURE_SPEECH_REGION` | Região do recurso Speech (ex.: `eastus`) |
+
+Sem a chave do Azure, a API funciona, mas a rota de avaliação responde 503.
+
+Rotas:
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/historias` | Lista as histórias |
+| GET | `/historias/{id}` | Uma história com as frases |
+| POST | `/historias` | Cadastra uma história |
+| POST | `/historias/{id}/frases/{id}/avaliacao` | Avalia a pronúncia de uma frase (áudio WAV, 16 kHz, mono, até 30 s) |
+| GET | `/tentativas` | Lista as práticas registradas |
+| POST | `/tentativas` | Registra uma prática |
+
+Nesta etapa os dados ficam em memória e voltam ao estado inicial quando a API reinicia.
+
+Para publicar no Render, crie um Web Service com:
+
+- Root Directory: `backend`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `fastapi run app/main.py --port $PORT`
+- As variáveis de ambiente acima, com `CORS_ORIGINS` incluindo o endereço do site na Vercel
 
 ### Frontend
 
