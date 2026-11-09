@@ -84,7 +84,7 @@ Rotas:
 | GET | `/historias` | Lista as histórias |
 | GET | `/historias/{id}` | Uma história com as frases |
 | POST | `/historias` | Cadastra uma história |
-| POST | `/historias/{id}/frases/{id}/avaliacao` | Avalia a pronúncia de uma frase (áudio WAV, 16 kHz, mono, até 30 s) |
+| POST | `/historias/{id}/frases/{id}/avaliacao` | Avalia a pronúncia de uma frase (áudio WAV, 16 kHz, 16 bits, mono, até 30 s) |
 | GET | `/tentativas` | Lista as práticas registradas |
 | POST | `/tentativas` | Registra uma prática |
 
