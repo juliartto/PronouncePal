@@ -1,4 +1,5 @@
 from app.schemas.historia import Frase, Historia
+from app.schemas.tentativa import Tentativa
 
 # Nesta sprint os dados ficam em memória e voltam ao estado inicial quando a API reinicia
 
@@ -43,6 +44,7 @@ _historias_iniciais = [
 ]
 
 historias: list[Historia] = []
+tentativas: list[Tentativa] = []
 
 id_frase = 0
 for id_historia, (titulo, nivel, autor, frases) in enumerate(_historias_iniciais, start=1):

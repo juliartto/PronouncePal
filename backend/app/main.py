@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import historias
+from app.routers import historias, tentativas
 
 app = FastAPI(title="API PronouncePal")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(historias.router)
+app.include_router(tentativas.router)
 
 
 @app.get("/health")
