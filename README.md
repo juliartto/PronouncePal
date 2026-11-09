@@ -6,7 +6,7 @@ Trabalho final da disciplina de Desenvolvimento Web (UTFPR).
 
 **Site:** https://pronounce-pal.vercel.app
 
-**API:** https://pronouncepal.onrender.com/docs (no plano gratuito a primeira requisição pode levar cerca de 1 minuto)
+**API:** https://pronouncepal.onrender.com/docs
 
 ## O problema
 
