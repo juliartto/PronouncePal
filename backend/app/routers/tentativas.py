@@ -7,7 +7,7 @@ from app import dados
 from app.routers.historias import buscar_historia
 from app.schemas.tentativa import NovaTentativa, Tentativa
 from app.schemas.usuario import Usuario
-from app.seguranca import professor_logado, usuario_logado
+from app.seguranca import aluno_logado, professor_logado
 
 router = APIRouter(prefix="/tentativas", tags=["Tentativas"])
 
@@ -18,7 +18,7 @@ def listar_tentativas() -> list[Tentativa]:
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def registrar_tentativa(nova: NovaTentativa, aluno: Annotated[Usuario, Depends(usuario_logado)]) -> Tentativa:
+def registrar_tentativa(nova: NovaTentativa, aluno: Annotated[Usuario, Depends(aluno_logado)]) -> Tentativa:
     historia = buscar_historia(nova.historia_id)
 
     ids_frases = {frase.id for frase in historia.frases}

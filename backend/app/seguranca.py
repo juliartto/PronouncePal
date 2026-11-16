@@ -39,3 +39,9 @@ def professor_logado(usuario: Annotated[Usuario, Depends(usuario_logado)]) -> Us
     if usuario.papel != "professor":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Apenas professores podem fazer isso.")
     return usuario
+
+
+def aluno_logado(usuario: Annotated[Usuario, Depends(usuario_logado)]) -> Usuario:
+    if usuario.papel != "aluno":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Apenas alunos podem fazer isso.")
+    return usuario
