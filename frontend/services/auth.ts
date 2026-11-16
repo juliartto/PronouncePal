@@ -1,14 +1,14 @@
-import { SENHA_MOCK, usuariosMock } from "@/mocks/usuarios";
 import type { Usuario } from "@/types";
+import { requisitar } from "./api";
 
-const esperar = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export interface Sessao {
+  token: string;
+  usuario: Usuario;
+}
 
-export async function login(usuario: string, senha: string): Promise<Usuario> {
-  await esperar(600);
-
-  const encontrado = usuariosMock.find((u) => u.usuario === usuario.trim().toLowerCase());
-  if (!encontrado || senha !== SENHA_MOCK) {
-    throw new Error("Usuário ou senha incorretos.");
-  }
-  return encontrado;
+export async function login(usuario: string, senha: string): Promise<Sessao> {
+  // O login segue o padrão OAuth2 do FastAPI, que recebe formulário em vez de JSON
+  const corpo = new URLSearchParams({ username: usuario, password: senha });
+  const resposta = await requisitar<{ access_token: string; usuario: Usuario }>("/auth/login", { metodo: "POST", corpo });
+  return { token: resposta.access_token, usuario: resposta.usuario };
 }

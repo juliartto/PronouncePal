@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
 import * as authService from "@/services/auth";
 import type { Usuario } from "@/types";
 
-const CHAVE = "pronouncepal:usuario";
+const CHAVE = "pronouncepal:sessao";
 
 // Avisa o React quando a sessão salva no localStorage muda
 const ouvintes = new Set<() => void>();
@@ -22,6 +22,7 @@ function salvarSessao(valor: string | null) {
 
 interface AuthContextValor {
   usuario: Usuario | null;
+  token: string;
   carregando: boolean;
   entrar: (usuario: string, senha: string) => Promise<void>;
   sair: () => void;
@@ -37,11 +38,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => undefined,
   );
 
-  const usuario = useMemo<Usuario | null>(() => (salvo ? JSON.parse(salvo) : null), [salvo]);
+  const sessao = useMemo<authService.Sessao | null>(() => (salvo ? JSON.parse(salvo) : null), [salvo]);
 
   async function entrar(nomeUsuario: string, senha: string) {
-    const logado = await authService.login(nomeUsuario, senha);
-    salvarSessao(JSON.stringify(logado));
+    salvarSessao(JSON.stringify(await authService.login(nomeUsuario, senha)));
   }
 
   function sair() {
@@ -49,7 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, carregando: salvo === undefined, entrar, sair }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{ usuario: sessao?.usuario ?? null, token: sessao?.token ?? "", carregando: salvo === undefined, entrar, sair }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 }
 
