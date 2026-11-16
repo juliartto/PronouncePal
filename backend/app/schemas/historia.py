@@ -29,7 +29,6 @@ class NovaFrase(ModeloBase):
 class NovaHistoria(ModeloBase):
     titulo: str = Field(min_length=1, max_length=100)
     nivel: Nivel
-    autor: str = Field(min_length=1)
     frases: list[NovaFrase] = Field(min_length=1)
 
     @field_validator("frases")

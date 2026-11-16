@@ -1,7 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app import dados
 from app.schemas.historia import Frase, Historia, NovaHistoria
+from app.schemas.usuario import Usuario
+from app.seguranca import professor_logado
 
 router = APIRouter(prefix="/historias", tags=["Histórias"])
 
@@ -24,13 +28,13 @@ def obter_historia(historia_id: int) -> Historia:
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def criar_historia(nova: NovaHistoria) -> Historia:
+def criar_historia(nova: NovaHistoria, professor: Annotated[Usuario, Depends(professor_logado)]) -> Historia:
     proximo_id_frase = max((f.id for h in dados.historias for f in h.frases), default=0) + 1
     historia = Historia(
         id=max((h.id for h in dados.historias), default=0) + 1,
         titulo=nova.titulo,
         nivel=nova.nivel,
-        autor=nova.autor,
+        autor=professor.nome,
         frases=[
             Frase(id=proximo_id_frase + i, texto=frase.texto, praticar=frase.praticar)
             for i, frase in enumerate(nova.frases)

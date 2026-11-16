@@ -6,14 +6,14 @@ from app.schemas.historia import Nivel
 
 
 class NovaTentativa(ModeloBase):
-    aluno_login: str = Field(min_length=1)
-    aluno_nome: str = Field(min_length=1)
     historia_id: int
     resultados: list[ResultadoFrase] = Field(min_length=1)
 
 
 class Tentativa(NovaTentativa):
     id: str
+    aluno_login: str
+    aluno_nome: str
     historia_titulo: str
     nivel: Nivel
     nota_geral: int

@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     azure_speech_key: str = ""
     azure_speech_region: str = "eastus"
 
+    # Sem valor padrão: a API não sobe sem a chave que assina os tokens
+    jwt_secret: str
+    jwt_horas: int = 8
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

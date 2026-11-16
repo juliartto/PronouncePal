@@ -1,9 +1,10 @@
 import struct
 
-from fastapi import APIRouter, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from app.routers.historias import buscar_historia
 from app.schemas.avaliacao import ResultadoFrase
+from app.seguranca import usuario_logado
 from app.services.pronuncia import avaliar_pronuncia
 
 router = APIRouter(tags=["Avaliação de pronúncia"])
@@ -20,7 +21,7 @@ def eh_wav_aceito(audio: bytes) -> bool:
     return formato == 1 and canais == 1 and taxa == 16000 and bits == 16
 
 
-@router.post("/historias/{historia_id}/frases/{frase_id}/avaliacao")
+@router.post("/historias/{historia_id}/frases/{frase_id}/avaliacao", dependencies=[Depends(usuario_logado)])
 async def avaliar_frase(historia_id: int, frase_id: int, audio: UploadFile) -> ResultadoFrase:
     historia = buscar_historia(historia_id)
     frase = next((f for f in historia.frases if f.id == frase_id), None)

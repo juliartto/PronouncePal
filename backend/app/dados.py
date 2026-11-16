@@ -1,7 +1,18 @@
 from app.schemas.historia import Frase, Historia
 from app.schemas.tentativa import Tentativa
+from app.schemas.usuario import UsuarioComSenha
 
 # Nesta sprint os dados ficam em memória e voltam ao estado inicial quando a API reinicia
+
+# A senha de todos é 1234, guardada só como hash (argon2)
+usuarios = [
+    UsuarioComSenha(id=1, nome="Ana", usuario="ana", papel="aluno",
+                    senha_hash="$argon2id$v=19$m=65536,t=3,p=4$ZvbHJevr6aST18lXyhFm8Q$oF9O5lepko/qbYZH4hu05+d8gflsS+GLMz4vmA+UUJw"),
+    UsuarioComSenha(id=2, nome="Pedro", usuario="pedro", papel="aluno",
+                    senha_hash="$argon2id$v=19$m=65536,t=3,p=4$L897uYNKsndRCVT8SVz1HA$aF+M2JYyQtPb4keVJwNle4rpHZKgTeWLMpj4mny+GOk"),
+    UsuarioComSenha(id=3, nome="Profª Carla", usuario="carla", papel="professor",
+                    senha_hash="$argon2id$v=19$m=65536,t=3,p=4$G0nMCupTeH4e/wmTFUVFTA$3i3d5JOAUqaMfx7ejr/rqxnvrJrMZq2rldR/4KEHOrQ"),
+]
 
 _historias_iniciais = [
     ("The Little Red Hen", "Iniciante", "Profª Carla", [
