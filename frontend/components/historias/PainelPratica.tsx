@@ -4,7 +4,6 @@ import { useState } from "react";
 import Alerta from "@/components/ui/Alerta";
 import Botao from "@/components/ui/Botao";
 import EstadoVazio from "@/components/ui/EstadoVazio";
-import { useAuth } from "@/contexts/AuthContext";
 import { useHistorias } from "@/contexts/HistoriasContext";
 import type { Historia, ResultadoFrase } from "@/types";
 import ItemFrasePratica from "./ItemFrasePratica";
@@ -14,7 +13,6 @@ interface PainelPraticaProps {
 }
 
 export default function PainelPratica({ historia }: PainelPraticaProps) {
-  const { usuario } = useAuth();
   const { registrarTentativa } = useHistorias();
 
   const frasesParaPraticar = historia.frases.filter((f) => f.praticar);
@@ -35,16 +33,11 @@ export default function PainelPratica({ historia }: PainelPraticaProps) {
     setNotaRegistrada(null);
   }
 
-  function concluirPratica() {
+  async function concluirPratica() {
     if (resultadosLista.length === 0) return;
 
-    const tentativa = registrarTentativa({
-      alunoLogin: usuario?.usuario ?? "aluno",
-      alunoNome: usuario?.nome ?? "Aluno",
+    const tentativa = await registrarTentativa({
       historiaId: historia.id,
-      historiaTitulo: historia.titulo,
-      nivel: historia.nivel,
-      notaGeral: mediaAtual,
       resultados: resultadosLista,
     });
 

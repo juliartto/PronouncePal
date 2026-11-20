@@ -50,6 +50,6 @@ export interface TentativaPratica {
 export interface NovaHistoriaInput {
   titulo: string;
   nivel: Nivel;
-  autor: string;
+  autor?: string;
   frases: { texto: string; praticar: boolean }[];
 }

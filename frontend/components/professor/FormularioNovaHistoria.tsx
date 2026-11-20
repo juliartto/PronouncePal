@@ -72,7 +72,7 @@ export default function FormularioNovaHistoria() {
     setEnviando(true);
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const criada = adicionarHistoria({
+    const criada = await adicionarHistoria({
       titulo,
       nivel,
       autor: usuario?.nome ?? "Professor(a)",
