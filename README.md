@@ -74,6 +74,7 @@ Variáveis do `backend/.env`:
 | `CORS_ORIGINS` | Endereços do frontend que podem acessar a API, separados por vírgula |
 | `AZURE_SPEECH_KEY` | Chave do recurso Speech do Azure |
 | `AZURE_SPEECH_REGION` | Região do recurso Speech (ex.: `eastus`) |
+| `JWT_SECRET` | Chave secreta usada para assinar e validar os tokens JWT |
 
 Sem a chave do Azure, a API funciona, mas a rota de avaliação responde 503.
 
@@ -102,10 +103,17 @@ Para publicar no Render, crie um Web Service com:
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
 O site fica em http://localhost:3000.
+
+Variável do `frontend/.env` (e nas Environment Variables da Vercel em produção):
+
+| Variável | Descrição |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | Endereço da API (local: `http://localhost:8000`; produção: URL do serviço no Render) |
 
 Para gerar a versão estática (pasta `frontend/out/`):
 
