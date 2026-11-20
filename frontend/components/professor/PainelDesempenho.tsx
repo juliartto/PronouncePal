@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NIVEIS } from "@/components/historias/cores";
+import Alerta from "@/components/ui/Alerta";
+import Botao from "@/components/ui/Botao";
 import { classesInput } from "@/components/ui/Campo";
 import EstadoVazio from "@/components/ui/EstadoVazio";
 import { useHistorias } from "@/contexts/HistoriasContext";
@@ -9,9 +11,13 @@ import type { Nivel } from "@/types";
 import CartaoTentativa from "./CartaoTentativa";
 
 export default function PainelDesempenho() {
-  const { tentativas } = useHistorias();
+  const { tentativas, carregandoTentativas, erroTentativas, carregarTentativas } = useHistorias();
   const [alunoFiltro, setAlunoFiltro] = useState<string>("Todos");
   const [nivelFiltro, setNivelFiltro] = useState<Nivel | "Todos">("Todos");
+
+  useEffect(() => {
+    void carregarTentativas();
+  }, [carregarTentativas]);
 
   const alunosDisponiveis = useMemo(() => {
     const mapa = new Map<string, string>();
@@ -99,9 +105,9 @@ export default function PainelDesempenho() {
         </div>
       </div>
 
-      {/* Filtros rápidos */}
+      {/* Filtros rápidos e botão de atualização */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="filtro-aluno" className="shrink-0 font-bold text-lousa">
             Aluno:
           </label>
@@ -118,6 +124,15 @@ export default function PainelDesempenho() {
               </option>
             ))}
           </select>
+
+          <Botao
+            type="button"
+            variante="secundario"
+            carregando={carregandoTentativas}
+            onClick={() => void carregarTentativas()}
+          >
+            Atualizar
+          </Botao>
         </div>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar tentativas por nível">
@@ -139,8 +154,19 @@ export default function PainelDesempenho() {
         </div>
       </div>
 
-      {/* Listagem de tentativas */}
-      {tentativasFiltradas.length === 0 ? (
+      {/* Estados de carregamento, erro ou listagem de tentativas */}
+      {erroTentativas ? (
+        <div className="flex flex-col items-start gap-3">
+          <Alerta tipo="erro">{erroTentativas}</Alerta>
+          <Botao type="button" variante="secundario" onClick={() => void carregarTentativas()}>
+            Tentar novamente
+          </Botao>
+        </div>
+      ) : carregandoTentativas && tentativas.length === 0 ? (
+        <p className="rounded-lg bg-papel p-8 text-center font-giz text-2xl text-lousa">
+          Carregando desempenho dos alunos...
+        </p>
+      ) : tentativasFiltradas.length === 0 ? (
         <EstadoVazio>Nenhuma tentativa de prática encontrada com esse filtro.</EstadoVazio>
       ) : (
         <ul className="flex flex-col gap-4">
@@ -152,4 +178,3 @@ export default function PainelDesempenho() {
     </section>
   );
 }
-

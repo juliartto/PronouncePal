@@ -7,7 +7,6 @@ import EtiquetaNivel from "@/components/historias/EtiquetaNivel";
 import Alerta from "@/components/ui/Alerta";
 import Botao from "@/components/ui/Botao";
 import Campo, { classesInput } from "@/components/ui/Campo";
-import { useAuth } from "@/contexts/AuthContext";
 import { useHistorias } from "@/contexts/HistoriasContext";
 import type { Historia, Nivel } from "@/types";
 
@@ -25,7 +24,6 @@ interface ErrosFormulario {
 }
 
 export default function FormularioNovaHistoria() {
-  const { usuario } = useAuth();
   const { adicionarHistoria } = useHistorias();
 
   const [titulo, setTitulo] = useState("");
@@ -33,6 +31,7 @@ export default function FormularioNovaHistoria() {
   const [texto, setTexto] = useState("");
   const [desmarcadas, setDesmarcadas] = useState<Record<number, boolean>>({});
   const [erros, setErros] = useState<ErrosFormulario>({});
+  const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [historiaCriada, setHistoriaCriada] = useState<Historia | null>(null);
 
@@ -55,6 +54,7 @@ export default function FormularioNovaHistoria() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setHistoriaCriada(null);
+    setErroEnvio(null);
 
     const novosErros: ErrosFormulario = {};
     if (!titulo.trim()) {
@@ -70,22 +70,24 @@ export default function FormularioNovaHistoria() {
     if (Object.keys(novosErros).length > 0) return;
 
     setEnviando(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const criada = await adicionarHistoria({
+        titulo,
+        nivel,
+        frases: frasesDetectadas,
+      });
 
-    const criada = await adicionarHistoria({
-      titulo,
-      nivel,
-      autor: usuario?.nome ?? "Professor(a)",
-      frases: frasesDetectadas,
-    });
-
-    setTitulo("");
-    setNivel("Iniciante");
-    setTexto("");
-    setDesmarcadas({});
-    setErros({});
-    setEnviando(false);
-    setHistoriaCriada(criada);
+      setTitulo("");
+      setNivel("Iniciante");
+      setTexto("");
+      setDesmarcadas({});
+      setErros({});
+      setHistoriaCriada(criada);
+    } catch (erro) {
+      setErroEnvio(erro instanceof Error ? erro.message : "Erro ao publicar história.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -108,6 +110,7 @@ export default function FormularioNovaHistoria() {
           </Alerta>
         )}
 
+        {erroEnvio && <Alerta tipo="erro">{erroEnvio}</Alerta>}
         {erros.praticar && <Alerta tipo="erro">{erros.praticar}</Alerta>}
 
         <Campo id="titulo-historia" rotulo="Título da história" erro={erros.titulo}>
@@ -219,4 +222,3 @@ export default function FormularioNovaHistoria() {
     </section>
   );
 }
-

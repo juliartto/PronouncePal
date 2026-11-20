@@ -5,17 +5,25 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import EtiquetaNivel from "@/components/historias/EtiquetaNivel";
 import PainelPratica from "@/components/historias/PainelPratica";
+import Alerta from "@/components/ui/Alerta";
 import Botao from "@/components/ui/Botao";
 import { IconeAltoFalante, IconeMicrofone, IconeVoltar } from "@/components/ui/Icones";
 import { useHistorias } from "@/contexts/HistoriasContext";
+import { historiasService } from "@/services/historias";
+import type { Historia } from "@/types";
 
 export default function ConteudoHistoria() {
   const id = Number(useSearchParams().get("id"));
-  const { buscarPorId } = useHistorias();
+  const { buscarPorId, carregandoHistorias, erroHistorias } = useHistorias();
   const [lendo, setLendo] = useState(false);
   const [praticando, setPraticando] = useState(false);
+  const [resultadoBusca, setResultadoBusca] = useState<{
+    idBuscado: number;
+    historia: Historia | null;
+    erro: string | null;
+  } | null>(null);
 
-  const historia = buscarPorId(id);
+  const historiaDoContexto = buscarPorId(id);
 
   useEffect(() => {
     return () => {
@@ -25,10 +33,47 @@ export default function ConteudoHistoria() {
     };
   }, []);
 
+  useEffect(() => {
+    if (carregandoHistorias || historiaDoContexto || !Number.isFinite(id) || id <= 0) return;
+
+    let ativo = true;
+    historiasService
+      .buscarPorId(id)
+      .then((encontrada) => {
+        if (ativo) setResultadoBusca({ idBuscado: id, historia: encontrada, erro: null });
+      })
+      .catch((erro) => {
+        if (ativo) {
+          setResultadoBusca({
+            idBuscado: id,
+            historia: null,
+            erro: erro instanceof Error ? erro.message : "História não encontrada.",
+          });
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [id, carregandoHistorias, historiaDoContexto]);
+
+  const historia = historiaDoContexto ?? (resultadoBusca?.idBuscado === id ? resultadoBusca.historia : null);
+  const buscandoIndividual =
+    !carregandoHistorias && !historiaDoContexto && Number.isFinite(id) && id > 0 && resultadoBusca?.idBuscado !== id;
+  const erroFinal = resultadoBusca?.idBuscado === id ? resultadoBusca.erro : erroHistorias;
+
+  if ((carregandoHistorias || buscandoIndividual) && !historia) {
+    return (
+      <p className="rounded-lg bg-papel p-8 text-center font-giz text-2xl text-lousa">
+        Carregando história...
+      </p>
+    );
+  }
+
   if (!historia) {
     return (
-      <div className="text-center">
-        <p className="mb-4 font-giz text-2xl text-maca">História não encontrada.</p>
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 text-center">
+        <Alerta tipo="erro">{erroFinal ?? "História não encontrada."}</Alerta>
         <Link href="/inicio" className="font-bold text-lousa underline">
           Voltar para as histórias
         </Link>
