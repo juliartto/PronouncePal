@@ -1,20 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Alerta from "@/components/ui/Alerta";
 import Botao from "@/components/ui/Botao";
 import { IconeAltoFalante, IconeMicrofone } from "@/components/ui/Icones";
-import { avaliarFraseMock } from "@/mocks/desempenho";
+import { useAuth } from "@/contexts/AuthContext";
+import { historiasService } from "@/services/historias";
 import type { Frase, ResultadoFrase } from "@/types";
+import { converterParaWav16kHzMono } from "@/utils/audioWav";
 
 interface ItemFrasePraticaProps {
+  historiaId: number;
   numero: number;
   frase: Frase;
   resultado?: ResultadoFrase;
   onAvaliar: (resultado: ResultadoFrase) => void;
 }
 
-export default function ItemFrasePratica({ numero, frase, resultado, onAvaliar }: ItemFrasePraticaProps) {
+export default function ItemFrasePratica({
+  historiaId,
+  numero,
+  frase,
+  resultado,
+  onAvaliar,
+}: ItemFrasePraticaProps) {
+  const { token } = useAuth();
   const [gravando, setGravando] = useState(false);
+  const [avaliando, setAvaliando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const desmontadoRef = useRef(false);
+
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    };
+  }, []);
 
   function ouvirFrase() {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -25,15 +54,78 @@ export default function ItemFrasePratica({ numero, frase, resultado, onAvaliar }
     window.speechSynthesis.speak(fala);
   }
 
-  async function gravarPronuncia() {
-    if ( typeof window !== "undefined" && "speechSynthesis" in window) {
+  function pararGravacao() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+  }
+
+  async function iniciarGravacao() {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setErro("Seu navegador não suporta gravação de áudio pelo microfone.");
+      return;
+    }
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
-    setGravando(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    const avaliacao = avaliarFraseMock(frase);
-    setGravando(false);
-    onAvaliar(avaliacao);
+
+    setErro(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const pedacos: BlobPart[] = [];
+      const gravador = new MediaRecorder(stream);
+      mediaRecorderRef.current = gravador;
+
+      gravador.ondataavailable = (evento) => {
+        if (evento.data.size > 0) {
+          pedacos.push(evento.data);
+        }
+      };
+
+      gravador.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+
+        if (desmontadoRef.current) return;
+
+        setGravando(false);
+        setAvaliando(true);
+
+        try {
+          const blobBruto = new Blob(pedacos, { type: gravador.mimeType || "audio/webm" });
+          const arquivoWav = await converterParaWav16kHzMono(blobBruto);
+          const avaliacao = await historiasService.avaliarPronuncia(historiaId, frase.id, arquivoWav, token);
+          if (!desmontadoRef.current) {
+            onAvaliar(avaliacao);
+          }
+        } catch (err) {
+          if (!desmontadoRef.current) {
+            setErro(err instanceof Error ? err.message : "Erro ao avaliar a pronúncia.");
+          }
+        } finally {
+          if (!desmontadoRef.current) {
+            setAvaliando(false);
+          }
+        }
+      };
+
+      gravador.start();
+      setGravando(true);
+    } catch {
+      setErro("Não foi possível acessar o microfone. Verifique a permissão de áudio no navegador.");
+    }
+  }
+
+  function alternarGravacao() {
+    if (gravando) {
+      pararGravacao();
+    } else {
+      void iniciarGravacao();
+    }
   }
 
   const corNota =
@@ -58,15 +150,40 @@ export default function ItemFrasePratica({ numero, frase, resultado, onAvaliar }
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Botao type="button" variante="secundario" onClick={ouvirFrase}>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <Botao type="button" variante="secundario" onClick={ouvirFrase} disabled={gravando || avaliando}>
           <IconeAltoFalante /> Ouvir frase
         </Botao>
-        <Botao type="button" variante="destaque" carregando={gravando} onClick={gravarPronuncia}>
+
+        <Botao
+          type="button"
+          variante={gravando ? "perigo" : "destaque"}
+          carregando={avaliando}
+          onClick={alternarGravacao}
+        >
           <IconeMicrofone />
-          {gravando ? "Avaliando..." : resultado ? "Tentar novamente" : "Gravar pronúncia"}
+          {avaliando
+            ? "Avaliando pronúncia..."
+            : gravando
+              ? "Parar e avaliar"
+              : resultado
+                ? "Tentar novamente"
+                : "Gravar pronúncia"}
         </Botao>
+
+        {gravando && (
+          <span className="inline-flex items-center gap-2 text-sm font-bold text-maca" role="status">
+            <span className="h-3 w-3 animate-ping rounded-full bg-maca" />
+            Gravando... clique para parar
+          </span>
+        )}
       </div>
+
+      {erro && (
+        <div className="mt-3">
+          <Alerta tipo="erro">{erro}</Alerta>
+        </div>
+      )}
 
       {resultado && (
         <div className="mt-4 border-t border-linha pt-4">
@@ -96,4 +213,3 @@ export default function ItemFrasePratica({ numero, frase, resultado, onAvaliar }
     </li>
   );
 }
-

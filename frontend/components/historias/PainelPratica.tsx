@@ -4,6 +4,7 @@ import { useState } from "react";
 import Alerta from "@/components/ui/Alerta";
 import Botao from "@/components/ui/Botao";
 import EstadoVazio from "@/components/ui/EstadoVazio";
+import { useAuth } from "@/contexts/AuthContext";
 import { useHistorias } from "@/contexts/HistoriasContext";
 import type { Historia, ResultadoFrase } from "@/types";
 import ItemFrasePratica from "./ItemFrasePratica";
@@ -13,10 +14,13 @@ interface PainelPraticaProps {
 }
 
 export default function PainelPratica({ historia }: PainelPraticaProps) {
+  const { usuario } = useAuth();
   const { registrarTentativa } = useHistorias();
 
   const frasesParaPraticar = historia.frases.filter((f) => f.praticar);
   const [resultadosPorFrase, setResultadosPorFrase] = useState<Record<number, ResultadoFrase>>({});
+  const [salvando, setSalvando] = useState(false);
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
   const [notaRegistrada, setNotaRegistrada] = useState<number | null>(null);
 
   const resultadosLista = frasesParaPraticar
@@ -31,17 +35,25 @@ export default function PainelPratica({ historia }: PainelPraticaProps) {
   function atualizarResultadoFrase(resultado: ResultadoFrase) {
     setResultadosPorFrase((atual) => ({ ...atual, [resultado.fraseId]: resultado }));
     setNotaRegistrada(null);
+    setErroSalvar(null);
   }
 
   async function concluirPratica() {
     if (resultadosLista.length === 0) return;
 
-    const tentativa = await registrarTentativa({
-      historiaId: historia.id,
-      resultados: resultadosLista,
-    });
-
-    setNotaRegistrada(tentativa.notaGeral);
+    setSalvando(true);
+    setErroSalvar(null);
+    try {
+      const tentativa = await registrarTentativa({
+        historiaId: historia.id,
+        resultados: resultadosLista,
+      });
+      setNotaRegistrada(tentativa.notaGeral);
+    } catch (erro) {
+      setErroSalvar(erro instanceof Error ? erro.message : "Erro ao registrar a prática.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -73,6 +85,7 @@ export default function PainelPratica({ historia }: PainelPraticaProps) {
             {frasesParaPraticar.map((frase, indice) => (
               <ItemFrasePratica
                 key={frase.id}
+                historiaId={historia.id}
                 numero={indice + 1}
                 frase={frase}
                 resultado={resultadosPorFrase[frase.id]}
@@ -88,10 +101,29 @@ export default function PainelPratica({ historia }: PainelPraticaProps) {
                   Média alcançada: <span className="font-sans font-bold">{mediaAtual}/100</span>
                 </p>
 
-                <Botao type="button" variante="primario" onClick={concluirPratica} disabled={notaRegistrada !== null}>
-                  {notaRegistrada !== null ? "Prática salva" : "Salvar resultado da prática"}
-                </Botao>
+                {usuario?.papel === "aluno" ? (
+                  <Botao
+                    type="button"
+                    variante="primario"
+                    carregando={salvando}
+                    onClick={() => void concluirPratica()}
+                    disabled={notaRegistrada !== null || salvando}
+                  >
+                    {salvando
+                      ? "Salvando prática..."
+                      : notaRegistrada !== null
+                        ? "Prática salva"
+                        : "Salvar resultado da prática"}
+                  </Botao>
+                ) : (
+                  <p className="rounded-lg border border-linha bg-fundo px-3 py-2 text-xs text-texto-suave">
+                    Modo professor: avaliação de pronúncia disponível para teste (apenas alunos salvam tentativas no
+                    histórico da turma).
+                  </p>
+                )}
               </div>
+
+              {erroSalvar && <Alerta tipo="erro">{erroSalvar}</Alerta>}
 
               {notaRegistrada !== null && (
                 <Alerta tipo="sucesso">
@@ -105,4 +137,3 @@ export default function PainelPratica({ historia }: PainelPraticaProps) {
     </section>
   );
 }
-
